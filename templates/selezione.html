@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Seleziona il layout</h1>
+    <div class="selezione">
+        <div class="container">
+            <img class="image" src="../static/images/Layout_1.jpeg">
+            <a href="/start"><h2>Layout 1</h2></a>
+            <p>Semplice</p>
+        </div>
+        <div class="container">
+            <img class="image" src="../static/images/Layout_2.jpeg">
+            <a href="/start"><h2>Layout 2</h2></a>
+            <p>Complesso</p>
+        </div>
+    </div>
+</body>
+</html>

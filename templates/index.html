@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>WebSite Generator</title>
 </head>
 <body>
     <h1>WebSite Generator</h1>
     <a>Crea un sito web semplice con un'interfaccia semplice!</a>
     <h2>Crea subito il sito!</h2>
-    <a href="{{ url_for("start") }}">Crea il sito</a>
+    <a href="{{ url_for("selezione") }}">Crea il sito</a>
 </body>
 </html>
