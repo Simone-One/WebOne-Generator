@@ -8,5 +8,31 @@
 </head>
 <body>
     <h1>WebSite Generator</h1>
+    <form action="/aggiungi" method="POST">
+        <input type="hidden" name="tipo_blocco" value="titolo">
+        <button type="submit">Aggiungi un Titolo (H1)</button>
+    </form>
+    <div class="area-di-lavoro">
+    <h3>La tua pagina in costruzione:</h3>
+    
+    {% for blocco in blocchi %}
+    <div style="border: 1px dashed black; padding: 10px; margin: 10px 0;">
+        <p><strong>Tipo Blocco:</strong> {{ blocco.tipo }}</p>
+        <p><strong>Contenuto:</strong> {{ blocco.contenuto }}</p>
+        
+        <form action="/salva" method="POST">
+            <input type="hidden" name="id_blocco" value="{{ blocco.id }}">
+            
+            <input type="text" name="nuovo_testo" value="{{ blocco.contenuto }}" onclick="this.select()">
+            
+            <button type="submit">Salva Modifica</button>
+
+            <button type="submit" formaction="/muovi" name="direzione" value="su">🔼 Su</button>
+            
+            <button type="submit" formaction="/muovi" name="direzione" value="giu">🔽 Giù</button>
+        </form>
+    </div>
+    {% endfor %}
+</div>
 </body>
 </html>
