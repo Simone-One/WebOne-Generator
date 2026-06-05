@@ -110,7 +110,6 @@ def muovi():
             lista_temporanea[indice_attuale], lista_temporanea[indice_attuale + 1] = \
                 lista_temporanea[indice_attuale + 1], lista_temporanea[indice_attuale]
                 
-    # 3. Salva la lista riordinata nella sessione e ricarica la pagina
     session["lista_blocchi"] = lista_temporanea
     return redirect(url_for("start"))
 
@@ -120,24 +119,19 @@ def elimina():
     
     lista_temporanea = session["lista_blocchi"]
     
-    # 1. Ciclo per esaminare ogni blocco
     for blocco in lista_temporanea:
-        # 2. Controlliamo se l'ID del blocco è quello rimosso dall'utente
         if blocco["id"] == id_da_cancellare:
             lista_temporanea.remove(blocco)
             break
             
-    # 3. Salviamo la lista modificata nella sessione
     session["lista_blocchi"] = lista_temporanea
     
     return redirect(url_for("start"))
 
 @app.route("/svuota", methods=["POST"])
 def svuota():
-    # Sovrascriviamo la lista in sessione impostandola come vuota
     session["lista_blocchi"] = []
     
-    # Ricarichiamo la pagina start, che ora non mostrerà più nessun blocco
     return redirect(url_for("start"))
 
 @app.route("/pubblica")
