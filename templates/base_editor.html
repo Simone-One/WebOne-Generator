@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>{% block titolo %}WebSite Generator{% endblock %}</title>
+</head>
+<body>
+    <!-- AGGIUNTA TITOLO -->
+    <h1>WebSite Generator</h1>
+    <a href="{{ url_for('pubblica') }}">🌎 Pubblica</a>
+    <form action="/aggiungi" method="POST">
+        <input type="hidden" name="tipo_blocco" value="titolo">
+        <button type="submit">Aggiungi un Titolo (H1)</button>
+    </form>
+
+    <!-- AGGIUNTA TESTO -->
+    <form action="{{ url_for('aggiungi') }}" method="POST">
+        <input type="hidden" name="tipo_blocco" value="testo">
+        <button type="submit">Aggiungi un Testo (p)</button>
+    </form>
+
+    <!-- AGGIUNTA IMMAGINE -->
+    <form action="{{ url_for('aggiungi') }}" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="tipo_blocco" value="immagine">
+        <input type="file" name="file_immagine" accept="image/*" required>
+        <button type="submit">📤 Carica Immagine</button>
+    </form>
+
+    <!-- SFONDO PAGINA -->
+    <form action="{{ url_for('imposta_sfondo') }}" method="POST">
+        <label>Colore sfondo:</label>
+        <select name="colore">
+            <option value="#ffffff" {% if colore_sfondo == "#ffffff" %}selected{% endif %}>Bianco</option>
+            <option value="#f0f0f0" {% if colore_sfondo == "#f0f0f0" %}selected{% endif %}>Grigio chiaro</option>
+            <option value="#1a1a2e" {% if colore_sfondo == "#1a1a2e" %}selected{% endif %}>Scuro</option>
+        </select>
+        <button type="submit">Applica</button>
+    </form>
+
+    
+    <div class="area-di-lavoro">
+        <!-- SVUOTARE PAGINA -->
+        <form action="/svuota" method="POST" style="margin-top: 20px;">
+            <button type="submit" style="background-color: #ff4444; color: white; padding: 10px;">⟲ Reset a Layout Originale</button>
+        </form>
+        <h3>La tua pagina in costruzione:</h3>
+
+        {% for blocco in blocchi %}
+        <!-- ELENCO BLOCCHI -->
+        <div style="border: 1px dashed black; padding: 10px; margin: 10px 0;">
+            <p><strong>Tipo Blocco:</strong> {{ blocco.tipo }}</p>
+            <p><strong>Contenuto:</strong> {{ blocco.contenuto }}</p>
+
+            <form action="/salva" method="POST">
+                <input type="hidden" name="id_blocco" value="{{ blocco.id }}">
+                <input type="text" name="nuovo_testo" value="{{ blocco.contenuto }}" onclick="this.select()">
+                {% if blocco.tipo == 'testo' %}
+                <!-- BLOCCO TESTO -->
+                <select name="colore_testo">
+                    <option value="#000000" {% if blocco.colore_testo == "#000000" %}selected{% endif %}>Nero</option>
+                    <option value="#444444" {% if blocco.colore_testo == "#444444" %}selected{% endif %}>Grigio scuro</option>
+                    <option value="#e63946" {% if blocco.colore_testo == "#e63946" %}selected{% endif %}>Rosso</option>
+                    <option value="#2a9d8f" {% if blocco.colore_testo == "#2a9d8f" %}selected{% endif %}>Verde</option>
+                    <option value="#1d3557" {% if blocco.colore_testo == "#1d3557" %}selected{% endif %}>Blu scuro</option>
+                </select>
+                {% endif %}
+                {% if blocco.tipo == 'titolo' %}
+                <!-- BLOCCO TITOLO -->
+                <select name="colore_titolo">
+                    <option value="#000000" {% if blocco.colore_titolo == "#000000" %}selected{% endif %}>Nero</option>
+                    <option value="#e63946" {% if blocco.colore_titolo == "#e63946" %}selected{% endif %}>Rosso</option>
+                    <option value="#2a9d8f" {% if blocco.colore_titolo == "#2a9d8f" %}selected{% endif %}>Verde</option>
+                    <option value="#1d3557" {% if blocco.colore_titolo == "#1d3557" %}selected{% endif %}>Blu scuro</option>
+                    <option value="#f4a261" {% if blocco.colore_titolo == "#f4a261" %}selected{% endif %}>Arancione</option>
+                </select>
+                {% endif %}
+                <!-- SALVATAGGIO -->
+                <button type="submit">Salva Modifica</button>
+                <button type="submit" formaction="/muovi" name="direzione" value="su">🔼 Su</button>
+                <button type="submit" formaction="/muovi" name="direzione" value="giu">🔽 Giù</button>
+                <button type="submit" formaction="/elimina" style="color: red;">❌ Elimina</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+    <hr style="margin: 40px 0; border: 2px solid #ccc;">
+
+    {% block anteprima %}{% endblock %}
+</body>
+</html>

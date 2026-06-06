@@ -2,9 +2,10 @@ from flask import Flask
 from flask import Flask, render_template, request, redirect, url_for, session
 import uuid
 import os
+from blocchi import get_lista_blocchi, check_lista
 
 app = Flask(__name__)
-app.secret_key = "1ae416548d4589849773aaf6c6237583"
+app.secret_key = "1ae416544d4589849873aaf6r5237583"
 
 @app.route("/")
 def hello_world():
@@ -12,13 +13,23 @@ def hello_world():
 
 @app.route("/selezione")
 def selezione():
-    return render_template("selezione.html")
-
-@app.route("/start")
-def start():
     if "lista_blocchi" not in session:
         session["lista_blocchi"] = []
-    return render_template("start.html", blocchi=session["lista_blocchi"])
+        return render_template("selezione.html")
+    session["lista_blocchi"] = check_lista(lista_blocchi=session["lista_blocchi"])
+    return render_template("selezione.html")
+
+@app.route("/start/<layout>")
+def start(layout):
+    session["layout"] = layout
+    lista_blocchi_temporanea = session["lista_blocchi"]
+    if len(lista_blocchi_temporanea) == 0:
+        lista_blocchi_temporanea = get_lista_blocchi(layout)
+        session["lista_blocchi"] = lista_blocchi_temporanea
+    if "colore_sfondo" not in session:
+        colore_sfondo_temporaneo = "#ffffff"
+        session["colore_sfondo"] = colore_sfondo_temporaneo
+    return render_template(f"{layout}.html", blocchi=session["lista_blocchi"], colore_sfondo=session["colore_sfondo"])
 
 @app.route("/aggiungi", methods=["POST"])
 def aggiungi():
@@ -68,7 +79,7 @@ def aggiungi():
     lista_temporanea.append(nuovo_blocco)
     session["lista_blocchi"] = lista_temporanea
     
-    return redirect(url_for("start"))
+    return redirect(url_for("start", layout=session["layout"]))
 
 @app.route("/salva", methods=["POST"])
 def salva():
@@ -80,11 +91,15 @@ def salva():
     for blocco in lista_temporanea:
         if blocco["id"] == id_da_modificare:
             blocco["contenuto"] = testo_aggiornato
+            if blocco["tipo"] == "testo" and request.form.get("colore_testo"):
+                blocco["colore_testo"] = request.form.get("colore_testo")
+            if blocco["tipo"] == "titolo" and request.form.get("colore_titolo"):
+                blocco["colore_titolo"] = request.form.get("colore_titolo")
             break
             
     session["lista_blocchi"] = lista_temporanea
     
-    return redirect(url_for("start"))
+    return redirect(url_for("start", layout=session["layout"]))
 
 @app.route("/muovi", methods=["POST"])
 def muovi():
@@ -111,7 +126,7 @@ def muovi():
                 lista_temporanea[indice_attuale + 1], lista_temporanea[indice_attuale]
                 
     session["lista_blocchi"] = lista_temporanea
-    return redirect(url_for("start"))
+    return redirect(url_for("start", layout=session["layout"]))
 
 @app.route("/elimina", methods=["POST"])
 def elimina():
@@ -126,13 +141,13 @@ def elimina():
             
     session["lista_blocchi"] = lista_temporanea
     
-    return redirect(url_for("start"))
+    return redirect(url_for("start", layout=session["layout"]))
 
 @app.route("/svuota", methods=["POST"])
 def svuota():
     session["lista_blocchi"] = []
     
-    return redirect(url_for("start"))
+    return redirect(url_for("start", layout=session["layout"]))
 
 @app.route("/pubblica")
 def pubblica():
@@ -140,11 +155,12 @@ def pubblica():
         session["lista_blocchi"] = []
     return render_template("pubblica.html", blocchi=session["lista_blocchi"])
 
-@app.route("layout_1")
-def layout_1():
-    if "lista_blocchi" not in session:
-        session["lista_blocchi"] = []
-    return render_template("start.html", blocchi=session["lista_blocchi"])
+@app.route("/imposta_sfondo", methods=["POST"])
+def imposta_sfondo():
+    session["colore_sfondo"] = request.form.get("colore")
+    print(f"colore scelto: {session["colore_sfondo"]}")
+    return redirect(url_for("start", layout=session["layout"]))
+
 
 if __name__ == "__main__":
     app.run(debug=True)
