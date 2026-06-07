@@ -47,6 +47,7 @@
         </form>
         <h3>La tua pagina in costruzione:</h3>
 
+        {% block area_costruzione %}
         {% for blocco in blocchi %}
         <!-- ELENCO BLOCCHI -->
         <div style="border: 1px dashed black; padding: 10px; margin: 10px 0;">
@@ -84,6 +85,7 @@
             </form>
         </div>
         {% endfor %}
+        {% endblock %}
     </div>
 
     <hr style="margin: 40px 0; border: 2px solid #ccc;">

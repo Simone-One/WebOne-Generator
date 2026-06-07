@@ -22,6 +22,9 @@ def selezione():
 @app.route("/start/<layout>")
 def start(layout):
     session["layout"] = layout
+    if "lista_blocchi" not in session:
+        session["lista_blocchi"] = []
+
     lista_blocchi_temporanea = session["lista_blocchi"]
     if len(lista_blocchi_temporanea) == 0:
         lista_blocchi_temporanea = get_lista_blocchi(layout)
@@ -153,7 +156,10 @@ def svuota():
 def pubblica():
     if "lista_blocchi" not in session:
         session["lista_blocchi"] = []
-    return render_template("pubblica.html", blocchi=session["lista_blocchi"])
+    return render_template("pubblica.html",
+                         blocchi=session["lista_blocchi"],
+                         layout=session.get("layout", "layout1"),
+                         colore_sfondo=session.get("colore_sfondo", "#ffffff"))
 
 @app.route("/imposta_sfondo", methods=["POST"])
 def imposta_sfondo():

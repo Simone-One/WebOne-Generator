@@ -2,6 +2,65 @@
 
 {% block titolo %}WebSite Generator - Layout Complesso{% endblock %}
 
+{% block area_costruzione %}
+    {% set ns_editor = namespace(immagine_precedente=false) %}
+    {% for blocco in blocchi %}
+        {% set successore_e_testo = false %}
+        {% if blocco.tipo == 'immagine' %}
+            {% if not loop.last and blocchi[loop.index0 + 1].tipo == 'testo' %}
+                {% set successore_e_testo = true %}
+            {% endif %}
+        {% endif %}
+
+        <div style="border: 1px dashed black; padding: 10px; margin: 10px 0; {% if ns_editor.immagine_precedente %} border-top: 5px solid #2a9d8f; background-color: #f9fff9; {% endif %} {% if successore_e_testo %} border-bottom: 5px solid #2a9d8f; margin-bottom: 0; {% endif %}">
+            <p>
+                <strong>Tipo Blocco:</strong> {{ blocco.tipo }}
+                {% if successore_e_testo %}
+                    <span style="color: #2a9d8f; font-weight: bold; margin-left: 10px;">🔗 Sarà accoppiato con il testo successivo</span>
+                {% elif ns_editor.immagine_precedente %}
+                    <span style="color: #2a9d8f; font-weight: bold; margin-left: 10px;">🔗 Accoppiato con l'immagine precedente</span>
+                {% elif blocco.tipo == 'immagine' %}
+                    <span style="color: #e63946; font-weight: bold; margin-left: 10px;">⚠️ Apparirà a tutta larghezza (nessun testo adiacente)</span>
+                {% endif %}
+            </p>
+            <p><strong>Contenuto:</strong> {{ blocco.contenuto }}</p>
+
+            <form action="/salva" method="POST">
+                <input type="hidden" name="id_blocco" value="{{ blocco.id }}">
+                <input type="text" name="nuovo_testo" value="{{ blocco.contenuto }}" onclick="this.select()">
+                {% if blocco.tipo == 'testo' %}
+                <select name="colore_testo">
+                    <option value="#000000" {% if blocco.colore_testo == "#000000" %}selected{% endif %}>Nero</option>
+                    <option value="#444444" {% if blocco.colore_testo == "#444444" %}selected{% endif %}>Grigio scuro</option>
+                    <option value="#e63946" {% if blocco.colore_testo == "#e63946" %}selected{% endif %}>Rosso</option>
+                    <option value="#2a9d8f" {% if blocco.colore_testo == "#2a9d8f" %}selected{% endif %}>Verde</option>
+                    <option value="#1d3557" {% if blocco.colore_testo == "#1d3557" %}selected{% endif %}>Blu scuro</option>
+                </select>
+                {% endif %}
+                {% if blocco.tipo == 'titolo' %}
+                <select name="colore_titolo">
+                    <option value="#000000" {% if blocco.colore_titolo == "#000000" %}selected{% endif %}>Nero</option>
+                    <option value="#e63946" {% if blocco.colore_titolo == "#e63946" %}selected{% endif %}>Rosso</option>
+                    <option value="#2a9d8f" {% if blocco.colore_titolo == "#2a9d8f" %}selected{% endif %}>Verde</option>
+                    <option value="#1d3557" {% if blocco.colore_titolo == "#1d3557" %}selected{% endif %}>Blu scuro</option>
+                    <option value="#f4a261" {% if blocco.colore_titolo == "#f4a261" %}selected{% endif %}>Arancione</option>
+                </select>
+                {% endif %}
+                <button type="submit">Salva Modifica</button>
+                <button type="submit" formaction="/muovi" name="direzione" value="su">🔼 Su</button>
+                <button type="submit" formaction="/muovi" name="direzione" value="giu">🔽 Giù</button>
+                <button type="submit" formaction="/elimina" style="color: red;">❌ Elimina</button>
+            </form>
+        </div>
+
+        {% if successore_e_testo %}
+            {% set ns_editor.immagine_precedente = true %}
+        {% else %}
+            {% set ns_editor.immagine_precedente = false %}
+        {% endif %}
+    {% endfor %}
+{% endblock %}
+
 {% block anteprima %}
     <!-- ANTEPRIMA LAYOUT COMPLESSO: navbar + hero + sezioni immagine/testo alternate -->
     <div class="area-anteprima" style="background: {{ colore_sfondo }}; border: 1px solid #ddd; font-family: sans-serif;">
@@ -22,9 +81,16 @@
 
             {% for blocco in blocchi %}
                 {% if blocco.tipo == 'titolo' %}
+                    {% if ns.immagine_pendente %}
+                        <img src="{{ ns.immagine_pendente }}" alt="Immagine" style="width: 100%; max-width: 700px; height: auto; display: block; margin: 20px auto;">
+                        {% set ns.immagine_pendente = None %}
+                    {% endif %}
                     <h2 style="font-size: 1.8em; margin-top: 30px; border-left: 4px solid #222; padding-left: 12px; color: {{ blocco.colore_titolo }};">{{ blocco.contenuto }}</h2>
 
                 {% elif blocco.tipo == 'immagine' %}
+                    {% if ns.immagine_pendente %}
+                        <img src="{{ ns.immagine_pendente }}" alt="Immagine" style="width: 100%; max-width: 700px; height: auto; display: block; margin: 20px auto;">
+                    {% endif %}
                     {% set ns.immagine_pendente = blocco.contenuto %}
 
                 {% elif blocco.tipo == 'testo' %}

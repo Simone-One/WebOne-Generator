@@ -6,22 +6,68 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>WebSite Generator</title>
 </head>
-<body>
-    {% for blocco in blocchi %}
-    
-        <div class="blocco-renderizzato">
-            {% if blocco.tipo == 'titolo' %}
-                <h1>{{ blocco.contenuto }}</h1>
-                
-            {% elif blocco.tipo == 'testo' %}
-                <p>{{ blocco.contenuto }}</p>
-                
-            {% elif blocco.tipo == 'immagine' %}
-                <img src="{{ blocco.contenuto }}" alt="Immagine" style="max-width: 100%;">
-                
+<body style="background: {{ colore_sfondo }}; margin: 0; font-family: sans-serif;">
+    {% if layout == 'layout2' %}
+        <!-- NAVBAR -->
+        <nav style="background: #222; padding: 10px 20px; display: flex; gap: 20px;">
+            {% for blocco in blocchi %}
+                {% if blocco.tipo == 'titolo' %}
+                    <a href="#" style="color: white; text-decoration: none; font-size: 0.95em;">{{ blocco.contenuto }}</a>
+                {% endif %}
+            {% endfor %}
+        </nav>
+
+        <!-- CONTENUTO LAYOUT 2 -->
+        <div style="padding: 20px;">
+            {% set ns = namespace(immagine_pendente=None) %}
+
+            {% for blocco in blocchi %}
+                {% if blocco.tipo == 'titolo' %}
+                    {% if ns.immagine_pendente %}
+                        <img src="{{ ns.immagine_pendente }}" alt="Immagine" style="width: 100%; max-width: 700px; height: auto; display: block; margin: 20px auto;">
+                        {% set ns.immagine_pendente = None %}
+                    {% endif %}
+                    <h2 style="font-size: 1.8em; margin-top: 30px; border-left: 4px solid #222; padding-left: 12px; color: {{ blocco.colore_titolo }};">{{ blocco.contenuto }}</h2>
+
+                {% elif blocco.tipo == 'immagine' %}
+                    {% if ns.immagine_pendente %}
+                        <img src="{{ ns.immagine_pendente }}" alt="Immagine" style="width: 100%; max-width: 700px; height: auto; display: block; margin: 20px auto;">
+                    {% endif %}
+                    {% set ns.immagine_pendente = blocco.contenuto %}
+
+                {% elif blocco.tipo == 'testo' %}
+                    {% if ns.immagine_pendente %}
+                        <div style="display: flex; gap: 20px; align-items: flex-start; margin: 20px 0;">
+                            <img src="{{ ns.immagine_pendente }}" alt="Immagine" style="width: 45%; height: auto; object-fit: cover;">
+                            <p style="flex: 1; line-height: 1.7; color: {{ blocco.colore_testo }};">{{ blocco.contenuto }}</p>
+                        </div>
+                        {% set ns.immagine_pendente = None %}
+                    {% else %}
+                        <p style="line-height: 1.7; color: {{ blocco.colore_testo }}; margin: 15px 0;">{{ blocco.contenuto }}</p>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+
+            {% if ns.immagine_pendente %}
+                <img src="{{ ns.immagine_pendente }}" alt="Immagine" style="width: 100%; max-width: 700px; height: auto; display: block; margin: 20px auto;">
             {% endif %}
         </div>
-        
-    {% endfor %}
+
+    {% else %}
+        <!-- LAYOUT 1 O DEFAULT -->
+        <div style="padding: 20px; max-width: 800px; margin: 0 auto;">
+            {% for blocco in blocchi %}
+                <div class="blocco-renderizzato" style="text-align: center; margin: 20px 0;">
+                    {% if blocco.tipo == 'titolo' %}
+                        <h1 style="font-size: 2em; border-bottom: 2px solid #333; padding-bottom: 10px; color: {{ blocco.colore_titolo }};">{{ blocco.contenuto }}</h1>
+                    {% elif blocco.tipo == 'testo' %}
+                        <p style="font-size: 1.1em; line-height: 1.6; color: {{ blocco.colore_testo }};">{{ blocco.contenuto }}</p>
+                    {% elif blocco.tipo == 'immagine' %}
+                        <img src="{{ blocco.contenuto }}" alt="Immagine" style="width: 100%; max-width: 700px; height: auto; display: block; margin: 0 auto;">
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 </body>
 </html>
