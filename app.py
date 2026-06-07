@@ -1,11 +1,14 @@
 from flask import Flask
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory
 import uuid
 import os
 from blocchi import get_lista_blocchi
+from html_generator import generate_html
+from pathlib import Path
 
 app = Flask(__name__)
 app.secret_key = "1ae416544d2584432473aef6r5237583"
+BASE_DIR = Path(__file__).resolve().parent
 
 @app.route("/")
 def hello_world():
@@ -172,6 +175,16 @@ def torna_home():
     del session["lista_blocchi"]
     del session["layout"]
     return redirect(url_for("hello_world"))
+
+@app.route("/download")
+def download():
+    lista_blocchi_temporanea = session["lista_blocchi"]
+    generate_html(lista_blocchi_temporanea)
+    return send_from_directory(
+        BASE_DIR,
+        "download.html",
+        as_attachment=True
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
