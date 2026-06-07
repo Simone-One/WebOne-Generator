@@ -2,10 +2,10 @@ from flask import Flask
 from flask import Flask, render_template, request, redirect, url_for, session
 import uuid
 import os
-from blocchi import get_lista_blocchi, check_lista
+from blocchi import get_lista_blocchi
 
 app = Flask(__name__)
-app.secret_key = "1ae416544d4589849873aaf6r5237583"
+app.secret_key = "1ae416544d6589449473aaf6r5237583"
 
 @app.route("/")
 def hello_world():
@@ -13,17 +13,12 @@ def hello_world():
 
 @app.route("/selezione")
 def selezione():
-    if "lista_blocchi" not in session:
-        session["lista_blocchi"] = []
-        return render_template("selezione.html")
-    session["lista_blocchi"] = check_lista(lista_blocchi=session["lista_blocchi"])
     return render_template("selezione.html")
 
 @app.route("/start/<layout>")
 def start(layout):
     session["layout"] = layout
-    lista_blocchi_temporanea = session["lista_blocchi"]
-    if len(lista_blocchi_temporanea) == 0:
+    if "lista_blocchi" not in session:
         lista_blocchi_temporanea = get_lista_blocchi(layout)
         session["lista_blocchi"] = lista_blocchi_temporanea
     if "colore_sfondo" not in session:
@@ -85,12 +80,24 @@ def aggiungi():
 def salva():
     id_da_modificare = request.form.get("id_blocco")
     testo_aggiornato = request.form.get("nuovo_testo")
+    file_immagine = request.files.get("file_immagine")
     
     lista_temporanea = session["lista_blocchi"]
     
     for blocco in lista_temporanea:
         if blocco["id"] == id_da_modificare:
-            blocco["contenuto"] = testo_aggiornato
+            # Se c'è un file caricato (per blocchi immagine)
+            if file_immagine and file_immagine.filename:
+                cartella_destinazione = os.path.join('static', 'uploads')
+                if not os.path.exists(cartella_destinazione):
+                    os.makedirs(cartella_destinazione)
+                percorso_salvataggio = os.path.join(cartella_destinazione, file_immagine.filename)
+                file_immagine.save(percorso_salvataggio)
+                blocco["contenuto"] = f"/static/uploads/{file_immagine.filename}"
+            else:
+                # Per blocchi testo e titolo
+                blocco["contenuto"] = testo_aggiornato
+                
             if blocco["tipo"] == "testo" and request.form.get("colore_testo"):
                 blocco["colore_testo"] = request.form.get("colore_testo")
             if blocco["tipo"] == "titolo" and request.form.get("colore_titolo"):
@@ -146,14 +153,13 @@ def elimina():
 @app.route("/svuota", methods=["POST"])
 def svuota():
     session["lista_blocchi"] = []
-    
     return redirect(url_for("start", layout=session["layout"]))
 
 @app.route("/pubblica")
 def pubblica():
     if "lista_blocchi" not in session:
         session["lista_blocchi"] = []
-    return render_template("pubblica.html", blocchi=session["lista_blocchi"])
+    return render_template("pubblica.html", blocchi=session["lista_blocchi"], layout=session["layout"], colore_sfondo=session["colore_sfondo"])
 
 @app.route("/imposta_sfondo", methods=["POST"])
 def imposta_sfondo():

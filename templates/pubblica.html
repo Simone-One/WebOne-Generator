@@ -7,21 +7,69 @@
     <title>WebSite Generator</title>
 </head>
 <body>
-    {% for blocco in blocchi %}
-    
-        <div class="blocco-renderizzato">
-            {% if blocco.tipo == 'titolo' %}
-                <h1>{{ blocco.contenuto }}</h1>
-                
-            {% elif blocco.tipo == 'testo' %}
-                <p>{{ blocco.contenuto }}</p>
-                
-            {% elif blocco.tipo == 'immagine' %}
-                <img src="{{ blocco.contenuto }}" alt="Immagine" style="max-width: 100%;">
-                
-            {% endif %}
-        </div>
+    <!-- HEADER TOP BAR -->
+    <div class="header-toolbar">
+        <h1>WebSite Generator</h1>
+        <a href="{{ url_for('start', layout=session['layout']) }}">⭠ Torna all'editor</a>
+    </div>
+
+    <div style="background: {{ colore_sfondo }};">
+        {% if layout == "layout1" %}
+            {% for blocco in blocchi %}
+            <div class="blocco-renderizzato" style="text-align: center; margin: 0.8rem 0;">
+                {% if blocco.tipo == 'titolo' %}
+                    <h1 style="font-size: 1.4em; border-bottom: 2px solid #333; padding-bottom: 0.6rem; color: {{ blocco.colore_titolo }}; margin: 0;">{{ blocco.contenuto }}</h1>
+
+                {% elif blocco.tipo == 'testo' %}
+                    <p style="font-size: 0.9em; line-height: 1.5; color: {{ blocco.colore_testo }}; margin: 0.6rem 0;">{{ blocco.contenuto }}</p>
+
+                {% elif blocco.tipo == 'immagine' %}
+                    <img src="{{ blocco.contenuto }}" alt="Immagine" style="width: 100%; height: auto; display: block; border-radius: 6px; margin: 0.6rem 0;">
+
+                {% endif %}
+            </div>
+            {% endfor %}
         
-    {% endfor %}
+        {% elif layout == "layout2" %}
+            <!-- Navbar generata dai titoli -->
+            <nav style="background: #222; padding: 0.8rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                {% for blocco in blocchi %}
+                    {% if blocco.tipo == 'titolo' %}
+                        <a href="#" style="color: white; text-decoration: none; font-size: 0.8em;">{{ blocco.contenuto[:15] }}{% if blocco.contenuto|length > 15 %}...{% endif %}</a>
+                    {% endif %}
+                {% endfor %}
+            </nav>
+
+            <!-- Contenuto: immagine e testo affiancati a coppie -->
+            <div style="padding: 0.8rem;">
+                {% set ns = namespace(immagine_pendente=None) %}
+
+                {% for blocco in blocchi %}
+                    {% if blocco.tipo == 'titolo' %}
+                        <h2 style="font-size: 1.1em; margin-top: 0.8rem; border-left: 3px solid #222; padding-left: 0.8rem; color: {{ blocco.colore_titolo }}; margin-bottom: 0.6rem;">{{ blocco.contenuto }}</h2>
+
+                    {% elif blocco.tipo == 'immagine' %}
+                        {% set ns.immagine_pendente = blocco.contenuto %}
+
+                    {% elif blocco.tipo == 'testo' %}
+                        {% if ns.immagine_pendente %}
+                            <div style="display: flex; gap: 0.8rem; align-items: flex-start; margin: 0.8rem 0;">
+                                <img src="{{ ns.immagine_pendente }}" alt="Immagine" style="width: 40%; height: auto; object-fit: cover; border-radius: 6px;">
+                                <p style="flex: 1; line-height: 1.5; color: {{ blocco.colore_testo }}; font-size: 0.85em;">{{ blocco.contenuto }}</p>
+                            </div>
+                            {% set ns.immagine_pendente = None %}
+                        {% else %}
+                            <p style="line-height: 1.5; color: {{ blocco.colore_testo }}; margin: 0.6rem 0; font-size: 0.85em;">{{ blocco.contenuto }}</p>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Se c'è un'immagine rimasta senza testo, mostrala da sola -->
+                {% if ns.immagine_pendente %}
+                    <img src="{{ ns.immagine_pendente }}" alt="Immagine" style="width: 100%; height: auto; display: block; border-radius: 6px; margin: 0.8rem 0;">
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
 </body>
 </html>

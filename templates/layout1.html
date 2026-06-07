@@ -3,19 +3,19 @@
 {% block titolo %}WebSite Generator - Layout Semplice{% endblock %}
 
 {% block anteprima %}
-    <div class="area-anteprima" style="background: {{ colore_sfondo }}; padding: 20px; border: 1px solid #ddd; max-width: 800px; margin: 0 auto; font-family: sans-serif;">
-        <h2>Anteprima - Layout Semplice</h2>
+    <div class="area-anteprima" style="background: {{ colore_sfondo }};">
+        <h2>Anteprima</h2>
 
         {% for blocco in blocchi %}
-        <div class="blocco-renderizzato" style="text-align: center; margin: 20px 0;">
+        <div class="blocco-renderizzato" style="text-align: center; margin: 0.8rem 0;">
             {% if blocco.tipo == 'titolo' %}
-                <h1 style="font-size: 2em; border-bottom: 2px solid #333; padding-bottom: 10px; color: {{ blocco.colore_titolo }};">{{ blocco.contenuto }}</h1>
+                <h1 style="font-size: 1.4em; border-bottom: 2px solid #333; padding-bottom: 0.6rem; color: {{ blocco.colore_titolo }}; margin: 0;">{{ blocco.contenuto }}</h1>
 
             {% elif blocco.tipo == 'testo' %}
-                <p style="font-size: 1.1em; line-height: 1.6; color: {{ blocco.colore_testo }};">{{ blocco.contenuto }}</p>
+                <p style="font-size: 0.9em; line-height: 1.5; color: {{ blocco.colore_testo }}; margin: 0.6rem 0;">{{ blocco.contenuto }}</p>
 
             {% elif blocco.tipo == 'immagine' %}
-                <img src="{{ blocco.contenuto }}" alt="Immagine" style="width: 100%; max-width: 700px; height: auto; display: block; margin: 0 auto;">
+                <img src="{{ blocco.contenuto }}" alt="Immagine" style="width: 100%; height: auto; display: block; border-radius: 6px; margin: 0.6rem 0;">
 
             {% endif %}
         </div>
