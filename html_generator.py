@@ -1,5 +1,3 @@
-import os
-
 def write_into_html(testo):
     with open("download.html", "a", encoding="utf-8") as f:
         f.write(f"\n{testo}")
