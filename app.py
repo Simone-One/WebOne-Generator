@@ -82,10 +82,12 @@ def salva():
     testo_aggiornato = request.form.get("nuovo_testo")
     file_immagine = request.files.get("file_immagine")
     
-    lista_temporanea = session["lista_blocchi"]
+    lista_temporanea = session.get("lista_blocchi", [])
+    nuova_lista = []
     
     for blocco in lista_temporanea:
-        if blocco["id"] == id_da_modificare:
+        nuovo_blocco = blocco.copy()
+        if nuovo_blocco["id"] == id_da_modificare:
             # Se c'è un file caricato (per blocchi immagine)
             if file_immagine and file_immagine.filename:
                 cartella_destinazione = os.path.join('static', 'uploads')
@@ -93,18 +95,21 @@ def salva():
                     os.makedirs(cartella_destinazione)
                 percorso_salvataggio = os.path.join(cartella_destinazione, file_immagine.filename)
                 file_immagine.save(percorso_salvataggio)
-                blocco["contenuto"] = f"/static/uploads/{file_immagine.filename}"
-            else:
+                nuovo_blocco["contenuto"] = f"/static/uploads/{file_immagine.filename}"
+            elif testo_aggiornato is not None:
                 # Per blocchi testo e titolo
-                blocco["contenuto"] = testo_aggiornato
+                nuovo_blocco["contenuto"] = testo_aggiornato
+
+            if nuovo_blocco["tipo"] == "immagine":
+                nuovo_blocco["standalone"] = True if request.form.get("standalone") == "on" else False
                 
-            if blocco["tipo"] == "testo" and request.form.get("colore_testo"):
-                blocco["colore_testo"] = request.form.get("colore_testo")
-            if blocco["tipo"] == "titolo" and request.form.get("colore_titolo"):
-                blocco["colore_titolo"] = request.form.get("colore_titolo")
-            break
+            if nuovo_blocco["tipo"] == "testo" and request.form.get("colore_testo"):
+                nuovo_blocco["colore_testo"] = request.form.get("colore_testo")
+            if nuovo_blocco["tipo"] == "titolo" and request.form.get("colore_titolo"):
+                nuovo_blocco["colore_titolo"] = request.form.get("colore_titolo")
+        nuova_lista.append(nuovo_blocco)
             
-    session["lista_blocchi"] = lista_temporanea
+    session["lista_blocchi"] = nuova_lista
     
     return redirect(url_for("start", layout=session["layout"]))
 

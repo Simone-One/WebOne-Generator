@@ -2,6 +2,53 @@
 
 {% block titolo %}WebSite Generator - Layout Complesso{% endblock %}
 
+{% block area_costruzione %}
+    {% set ns = namespace(immagine_precedente_id=None) %}
+    {% for blocco in blocchi %}
+        {% set current_is_image = (blocco.tipo == 'immagine') %}
+        {% set current_is_standalone = (blocco.tipo == 'immagine' and blocco.standalone) %}
+        {% set prev_was_image = (ns.immagine_precedente_id is not none) %}
+
+        <div class="costruzione-wrapper" style="margin-bottom: 1rem; position: relative;">
+            {% if prev_was_image %}
+                {% if blocco.tipo == 'testo' %}
+                    <div class="pairing-indicator" id="pairing-{{ blocco.id }}" style="background: #e1f5fe; border: 1px solid #01579b; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.75rem; color: #01579b; display: inline-block; margin-bottom: 0.5rem;">
+                        🔗 Accoppiato con l'immagine sopra
+                    </div>
+                    <div style="border-left: 4px solid #01579b; padding-left: 1rem;">
+                        {{ render_blocco_editor(blocco) }}
+                    </div>
+                    {% set ns.immagine_precedente_id = None %}
+                {% else %}
+                    {# L'immagine precedente non è stata accoppiata #}
+                    <div class="warning-indicator" id="warning-{{ ns.immagine_precedente_id }}" style="background: #fff3e0; border: 1px solid #e65100; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.75rem; color: #e65100; display: inline-block; margin-bottom: 0.5rem;">
+                        ⚠️ L'immagine sopra non ha un testo accanto: apparirà a tutta larghezza.
+                    </div>
+                    {{ render_blocco_editor(blocco) }}
+                    {% if current_is_image and not current_is_standalone %}
+                        {% set ns.immagine_precedente_id = blocco.id %}
+                    {% else %}
+                        {% set ns.immagine_precedente_id = None %}
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                {{ render_blocco_editor(blocco) }}
+                {% if current_is_image and not current_is_standalone %}
+                    {% set ns.immagine_precedente_id = blocco.id %}
+                {% else %}
+                    {% set ns.immagine_precedente_id = None %}
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    {% if ns.immagine_precedente_id %}
+        <div class="warning-indicator" id="warning-last-{{ ns.immagine_precedente_id }}" style="background: #fff3e0; border: 1px solid #e65100; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.75rem; color: #e65100; display: inline-block; margin-top: -0.5rem; margin-bottom: 1rem;">
+            ⚠️ Quest'ultima immagine non ha un testo accanto: apparirà a tutta larghezza.
+        </div>
+    {% endif %}
+{% endblock %}
+
 {% block anteprima %}
     <div class="area-anteprima" style="background: {{ colore_sfondo }};">
         <h2>Anteprima</h2>
@@ -17,31 +64,46 @@
 
         <!-- Contenuto: immagine e testo affiancati a coppie -->
         <div style="padding: 0.8rem;">
-            {% set ns = namespace(immagine_pendente=None) %}
+            {% set ns_anteprima = namespace(immagine_pendente=None) %}
 
             {% for blocco in blocchi %}
                 {% if blocco.tipo == 'titolo' %}
+                    {# Se c'è un'immagine pendente, mostrala prima del titolo #}
+                    {% if ns_anteprima.immagine_pendente %}
+                        <img src="{{ ns_anteprima.immagine_pendente }}" alt="Immagine" style="width: 100%; height: auto; display: block; border-radius: 6px; margin: 0.8rem 0;">
+                        {% set ns_anteprima.immagine_pendente = None %}
+                    {% endif %}
                     <h2 style="font-size: 1.1em; margin-top: 0.8rem; border-left: 3px solid #222; padding-left: 0.8rem; color: {{ blocco.colore_titolo }}; margin-bottom: 0.6rem;">{{ blocco.contenuto }}</h2>
 
                 {% elif blocco.tipo == 'immagine' %}
-                    {% set ns.immagine_pendente = blocco.contenuto %}
+                    {# Se c'è già un'immagine pendente, mostrala prima #}
+                    {% if ns_anteprima.immagine_pendente %}
+                        <img src="{{ ns_anteprima.immagine_pendente }}" alt="Immagine" style="width: 100%; height: auto; display: block; border-radius: 6px; margin: 0.8rem 0;">
+                        {% set ns_anteprima.immagine_pendente = None %}
+                    {% endif %}
+
+                    {% if blocco.standalone %}
+                        <img src="{{ blocco.contenuto }}" alt="Immagine" style="width: 100%; height: auto; display: block; border-radius: 6px; margin: 0.8rem 0;">
+                    {% else %}
+                        {% set ns_anteprima.immagine_pendente = blocco.contenuto %}
+                    {% endif %}
 
                 {% elif blocco.tipo == 'testo' %}
-                    {% if ns.immagine_pendente %}
+                    {% if ns_anteprima.immagine_pendente %}
                         <div style="display: flex; gap: 0.8rem; align-items: flex-start; margin: 0.8rem 0;">
-                            <img src="{{ ns.immagine_pendente }}" alt="Immagine" style="width: 40%; height: auto; object-fit: cover; border-radius: 6px;">
+                            <img src="{{ ns_anteprima.immagine_pendente }}" alt="Immagine" style="width: 40%; height: auto; object-fit: cover; border-radius: 6px;">
                             <p style="flex: 1; line-height: 1.5; color: {{ blocco.colore_testo }}; font-size: 0.85em;">{{ blocco.contenuto }}</p>
                         </div>
-                        {% set ns.immagine_pendente = None %}
+                        {% set ns_anteprima.immagine_pendente = None %}
                     {% else %}
                         <p style="line-height: 1.5; color: {{ blocco.colore_testo }}; margin: 0.6rem 0; font-size: 0.85em;">{{ blocco.contenuto }}</p>
                     {% endif %}
                 {% endif %}
             {% endfor %}
 
-            <!-- Se c'è un'immagine rimasta senza testo, mostrala da sola -->
-            {% if ns.immagine_pendente %}
-                <img src="{{ ns.immagine_pendente }}" alt="Immagine" style="width: 100%; height: auto; display: block; border-radius: 6px; margin: 0.8rem 0;">
+            <!-- Se c'è un'immagine rimasta senza testo alla fine, mostrala -->
+            {% if ns_anteprima.immagine_pendente %}
+                <img src="{{ ns_anteprima.immagine_pendente }}" alt="Immagine" style="width: 100%; height: auto; display: block; border-radius: 6px; margin: 0.8rem 0;">
             {% endif %}
         </div>
     </div>
