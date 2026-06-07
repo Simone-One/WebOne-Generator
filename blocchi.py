@@ -16,7 +16,7 @@ def get_lista_blocchi(layout):
             { 
                 "id": str(uuid.uuid4()),
                 "tipo": "immagine",
-                "contenuto": "/static/uploads/traffico.jpg"
+                "contenuto": "/static/uploads/placeholder.png"
             },
         ]
         return lista_blocchi
@@ -35,7 +35,7 @@ def get_lista_blocchi(layout):
             { 
                 "id": str(uuid.uuid4()),
                 "tipo": "immagine",
-                "contenuto": "/static/uploads/traffico.jpg"
+                "contenuto": "/static/uploads/placeholder.png"
             },
             { 
                 "id": str(uuid.uuid4()),
@@ -45,7 +45,7 @@ def get_lista_blocchi(layout):
             { 
                 "id": str(uuid.uuid4()),
                 "tipo": "immagine",
-                "contenuto": "/static/uploads/traffico.jpg"
+                "contenuto": "/static/uploads/placeholder.png"
             },
             { 
                 "id": str(uuid.uuid4()),

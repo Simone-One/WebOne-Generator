@@ -5,7 +5,7 @@ import os
 from blocchi import get_lista_blocchi
 
 app = Flask(__name__)
-app.secret_key = "1ae416544d6589449473aaf6r5237583"
+app.secret_key = "1ae416544d2584432473aef6r5237583"
 
 @app.route("/")
 def hello_world():
@@ -152,7 +152,7 @@ def elimina():
 
 @app.route("/svuota", methods=["POST"])
 def svuota():
-    session["lista_blocchi"] = []
+    del session["lista_blocchi"]
     return redirect(url_for("start", layout=session["layout"]))
 
 @app.route("/pubblica")
@@ -167,6 +167,11 @@ def imposta_sfondo():
     print(f"colore scelto: {session["colore_sfondo"]}")
     return redirect(url_for("start", layout=session["layout"]))
 
+@app.route("/torna_home")
+def torna_home():
+    del session["lista_blocchi"]
+    del session["layout"]
+    return redirect(url_for("hello_world"))
 
 if __name__ == "__main__":
     app.run(debug=True)

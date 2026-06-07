@@ -9,8 +9,9 @@
 <body>
     <!-- HEADER TOP BAR -->
     <div class="header-toolbar">
-        <h1>WebSite Generator</h1>
-        <a href="{{ url_for('pubblica') }}">🌎 Visualizza</a>
+        <h1>WebOne Generator</h1>
+        <a href="{{ url_for('pubblica') }}">⛶ Visualizza a schermo intero</a>
+        <a href="{{ url_for('torna_home') }}">⭠ Torna alla Home</a>
     </div>
 
     <!-- MAIN CONTAINER - Two Columns -->
@@ -35,7 +36,7 @@
                 <form action="{{ url_for('aggiungi') }}" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="tipo_blocco" value="immagine">
                     <input type="file" name="file_immagine" accept="image/*" required>
-                    <button type="submit">📤 Carica</button>
+                    <button type="submit">⬆ Carica</button>
                 </form>
             </div>
 
@@ -56,7 +57,7 @@
             <div class="area-di-lavoro">
                 <!-- SVUOTARE PAGINA -->
                 <form action="/svuota" method="POST">
-                    <button type="submit" class="btn-reset">⟲ Reset</button>
+                    <button type="submit" class="btn-reset">⟲ Reset a Template originale</button>
                 </form>
                 
                 <h3>La tua pagina:</h3>
