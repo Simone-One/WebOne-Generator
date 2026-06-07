@@ -46,10 +46,25 @@
 
                 {% for blocco in blocchi %}
                     {% if blocco.tipo == 'titolo' %}
+                        {# Se c'è un'immagine pendente, mostrala prima del titolo #}
+                        {% if ns.immagine_pendente %}
+                            <img src="{{ ns.immagine_pendente }}" alt="Immagine" style="width: 100%; height: auto; display: block; border-radius: 6px; margin: 0.8rem 0;">
+                            {% set ns.immagine_pendente = None %}
+                        {% endif %}
                         <h2 style="font-size: 1.1em; margin-top: 0.8rem; border-left: 3px solid #222; padding-left: 0.8rem; color: {{ blocco.colore_titolo }}; margin-bottom: 0.6rem;">{{ blocco.contenuto }}</h2>
 
                     {% elif blocco.tipo == 'immagine' %}
-                        {% set ns.immagine_pendente = blocco.contenuto %}
+                        {# Se c'è già un'immagine pendente, mostrala prima #}
+                        {% if ns.immagine_pendente %}
+                            <img src="{{ ns.immagine_pendente }}" alt="Immagine" style="width: 100%; height: auto; display: block; border-radius: 6px; margin: 0.8rem 0;">
+                            {% set ns.immagine_pendente = None %}
+                        {% endif %}
+
+                        {% if blocco.standalone %}
+                            <img src="{{ blocco.contenuto }}" alt="Immagine" style="width: 100%; height: auto; display: block; border-radius: 6px; margin: 0.8rem 0;">
+                        {% else %}
+                            {% set ns.immagine_pendente = blocco.contenuto %}
+                        {% endif %}
 
                     {% elif blocco.tipo == 'testo' %}
                         {% if ns.immagine_pendente %}
