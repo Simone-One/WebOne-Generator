@@ -179,7 +179,12 @@ def torna_home():
 @app.route("/download")
 def download():
     lista_blocchi_temporanea = session["lista_blocchi"]
-    generate_html(lista_blocchi_temporanea)
+    layout = session["layout"]
+    if "colore_sfondo" not in session:
+        colore_sfondo = "#fafafa"
+    else:
+        colore_sfondo = session["colore_sfondo"]
+    generate_html(lista_blocchi_temporanea, layout, colore_sfondo)
     return send_from_directory(
         BASE_DIR,
         "download.html",

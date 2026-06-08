@@ -57,7 +57,7 @@
             <!-- AREA DI LAVORO -->
             <div class="area-di-lavoro">
                 <!-- SVUOTARE PAGINA -->
-                <form action="/svuota" method="POST">
+                <form action="{{ url_for('svuota') }}" method="POST">
                     <button type="submit" class="btn-reset">⟲ Reset a Template originale</button>
                 </form>
                 
@@ -77,7 +77,7 @@
                         </div>
                     </div>
 
-                    <form action="/salva" method="POST" enctype="multipart/form-data" class="blocco-editor-form">
+                    <form action="{{ url_for('salva') }}" method="POST" enctype="multipart/form-data" class="blocco-editor-form">
                         <input type="hidden" name="id_blocco" value="{{ blocco.id }}">
                         
                         {% if blocco.tipo == 'immagine' %}
@@ -115,9 +115,9 @@
                         <!-- CONTROLS -->
                         <div class="blocco-editor-controls">
                             <button type="submit">💾 Salva</button>
-                            <button type="submit" formaction="/muovi" name="direzione" value="su">🔼</button>
-                            <button type="submit" formaction="/muovi" name="direzione" value="giu">🔽</button>
-                            <button type="submit" formaction="/elimina">❌</button>
+                            <button type="submit" formaction="{{ url_for('muovi') }}" name="direzione" value="su">🔼</button>
+                            <button type="submit" formaction="{{ url_for('muovi') }}" name="direzione" value="giu">🔽</button>
+                            <button type="submit" formaction="{{ url_for('elimina') }}">❌</button>
                         </div>
                     </form>
                 </div>
